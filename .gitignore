@@ -179,4 +179,4 @@ cython_debug/
 .pypirc
 
 logs/
-config.json
+config.yaml

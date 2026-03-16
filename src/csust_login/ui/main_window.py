@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         # 加载配置
-        self.app_config = AppConfig.load_from_json()
+        self.app_config = AppConfig.load_from_file()
 
         self.setWindowTitle("长沙理工大学校园网自动登录")
         self.setMinimumSize(520, 620)
@@ -215,7 +215,7 @@ class MainWindow(QMainWindow):
 
         config.update_from(self.app_config)
 
-        self.app_config.save_to_json()
+        self.app_config.save()
 
     def _toggle_inputs(self, enabled: bool) -> None:
         """启用或禁用所有配置输入项"""

@@ -1,12 +1,12 @@
-import json
 import os
 from dataclasses import asdict, dataclass, fields
 
 import urllib3
+import yaml
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-DEFAULT_CONFIG_PATH = "config.json"
+DEFAULT_CONFIG_PATH = "config.yaml"
 
 
 def _get_default_config() -> "AppConfig":
@@ -58,29 +58,40 @@ class AppConfig:
         for field in fields(self):
             setattr(self, field.name, getattr(other, field.name))
 
-    def save_to_json(self, path: str = DEFAULT_CONFIG_PATH) -> None:
+    def save(self, path: str = DEFAULT_CONFIG_PATH) -> None:
+        """保存配置到 YAML 文件"""
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(asdict(self), f, indent=4, ensure_ascii=False)
+            yaml.safe_dump(asdict(self), f, allow_unicode=True, sort_keys=False, indent=4)
 
     @classmethod
-    def load_from_json(cls, path: str = DEFAULT_CONFIG_PATH) -> "AppConfig":
+    def load_from_file(cls, path: str = DEFAULT_CONFIG_PATH) -> "AppConfig":
+        """从 YAML 文件加载配置"""
         if not os.path.exists(path):
             return cls.load()
+
         with open(path, "r", encoding="utf-8") as f:
             try:
-                data = json.load(f)
-            except json.JSONDecodeError:
+                data = yaml.safe_load(f)
+            except yaml.YAMLError:
                 return cls.load()
 
-            field_names = {f.name for f in fields(cls)}
-            filtered_data = {k: v for k, v in data.items() if k in field_names}
+            if not isinstance(data, dict):
+                return cls.load()
 
-            default_config = _get_default_config()
-            for field in fields(cls):
-                if field.name not in filtered_data:
-                    filtered_data[field.name] = getattr(default_config, field.name)
+            return cls._from_dict(data)
 
-            return cls(**filtered_data)
+    @classmethod
+    def _from_dict(cls, data: dict) -> "AppConfig":
+        """从字典创建配置对象并填充默认值"""
+        field_names = {f.name for f in fields(cls)}
+        filtered_data = {k: v for k, v in data.items() if k in field_names}
+
+        default_config = _get_default_config()
+        for field in fields(cls):
+            if field.name not in filtered_data:
+                filtered_data[field.name] = getattr(default_config, field.name)
+
+        return cls(**filtered_data)
 
 
-config = AppConfig.load_from_json()
+config = AppConfig.load_from_file()
