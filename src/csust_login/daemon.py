@@ -44,9 +44,13 @@ def start_daemon() -> None:
         time.sleep(1)
 
 
-if __name__ == "__main__":
+def main():
     try:
         start_daemon()
     except KeyboardInterrupt:
         logger.info("守护进程已被手动停止")
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

@@ -112,9 +112,13 @@ def login() -> bool:
         return False
 
 
-if __name__ == "__main__":
+def main():
     if is_online():
         logger.info("当前已检测到网络连接，无需登录")
         sys.exit(0)
     else:
         sys.exit(0 if login() else 1)
+
+
+if __name__ == "__main__":
+    main()
