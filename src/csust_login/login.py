@@ -1,7 +1,7 @@
 import json
 import re
 import sys
-from typing import Any, Dict, Tuple
+from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 import requests
@@ -17,8 +17,11 @@ class LoginSession:
     def __init__(self) -> None:
         self._session = requests.Session()
 
-    def login(self, username: str, password: str, location_params: Dict[str, str]) -> Tuple[bool, str]:
-        """执行登录操作"""
+    def login(self, username: str, password: str, location_params: dict[str, str]) -> tuple[bool, str]:
+        """
+        执行登录操作
+        :return: (是否成功, 响应信息或错误原因)
+        """
         params = {
             "callback": "dr1004",
             "login_method": 1,
@@ -44,14 +47,15 @@ class LoginSession:
             )
             response.raise_for_status()
             data = self._parse_callback(response.text)
-        except (requests.RequestException, ValueError) as e:
-            logger.error(f"登录请求失败: {e}")
-            return False, "请求失败"
+        except requests.RequestException as e:
+            return False, f"网络请求失败: {e}"
+        except ValueError as e:
+            return False, f"数据解析失败: {e}"
 
-        return (data.get("result") == 1, data.get("msg", "未知错误"))
+        return data.get("result") == 1, data.get("msg", "未知错误")
 
     @staticmethod
-    def _parse_callback(text: str) -> Dict[str, Any]:
+    def _parse_callback(text: str) -> dict[str, Any]:
         """解析回调函数响应"""
         match = re.match(r"^\w+\((.*)\);$", text.strip())
         if not match:
@@ -59,41 +63,41 @@ class LoginSession:
         return json.loads(match.group(1))
 
     @staticmethod
-    def get_location_parameters() -> Dict[str, str]:
-        """获取重定向地址中的查询参数"""
+    def get_location_parameters() -> tuple[dict[str, str] | None, str]:
+        """
+        获取重定向地址中的查询参数
+        :return: (参数字典, 错误信息)，如果成功则错误信息为空字符串
+        """
         try:
             response = requests.get("http://10.10.10.10/", allow_redirects=False, proxies=config.PROXIES, timeout=config.GET_LOCATION_TIMEOUT)
             response.raise_for_status()
         except requests.RequestException as e:
-            logger.error(f"获取定位参数失败: {e}")
-            return {}
+            return None, f"请求重定向地址失败: {e}"
 
         location = response.headers.get("Location", "")
         if not location:
-            return {}
+            return None, "响应头中未找到 Location 字段"
 
         parsed = urlparse(location)
-        return {k: v[0] for k, v in parse_qs(parsed.query).items()}
+        params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+        return params, ""
 
 
-def main() -> int:
+def login() -> bool:
     try:
-        if is_online():
-            logger.info("当前已检测到网络连接，无需登录")
-            return 0
-
         while True:
             session = LoginSession()
 
-            location_params = session.get_location_parameters()
-            if not location_params:
-                raise RuntimeError("无法获取网络位置参数")
+            location_params, err_msg = session.get_location_parameters()
+            if location_params is None:
+                logger.error(f"无法获取网络位置参数: {err_msg}")
+                return False
 
             # 登录流程
             success, msg = session.login(config.USERNAME, config.PASSWORD, location_params)
             if success:
-                logger.info("校园网登录成功！")
-                return 0
+                logger.info("校园网登录成功")
+                return True
 
             # 处理需要重新登录的情况
             if "login again" in msg.lower():
@@ -101,12 +105,16 @@ def main() -> int:
                 continue  # 继续外部循环
 
             logger.error(f"登录失败: {msg}")
-            return 1
+            return False
 
     except Exception as e:
-        logger.error(f"程序执行失败: {e}")
-        return 1
+        logger.error(f"程序执行异常: {e}")
+        return False
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if is_online():
+        logger.info("当前已检测到网络连接，无需登录")
+        sys.exit(0)
+    else:
+        sys.exit(0 if login() else 1)
