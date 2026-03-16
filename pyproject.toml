@@ -1,16 +1,31 @@
 [project]
 name = "csust-login"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "一个用于自动登录长沙理工大学校园网的 Python 脚本与守护进程工具。"
 authors = [{ name = "zHElEARN", email = "i@zhelearn.com" }]
 readme = "README.md"
 requires-python = ">=3.10"
+keywords = ["csust", "login", "network", "daemon", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
 dependencies = [
     "python-dotenv (>=1.2.2,<2.0.0)",
     "requests (>=2.32.5,<3.0.0)",
     "dnspython (>=2.8.0,<3.0.0)",
 ]
 
+[project.urls]
+Homepage = "https://github.com/zHElEARN/csust-login"
+Repository = "https://github.com/zHElEARN/csust-login"
+"Bug Tracker" = "https://github.com/zHElEARN/csust-login/issues"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

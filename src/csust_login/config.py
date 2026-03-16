@@ -36,18 +36,18 @@ class AppConfig:
     DAEMON_EXEC_INTERVAL: int
     DAEMON_RETRY_INTERVAL: int
 
-    ENABLE_LOGGING: bool
-    LOG_DIR: str
-    LOG_LEVEL: str
-
     CHECK_NETWORK_TIMEOUT: int
     LOGIN_TIMEOUT: int
-
-    PROXIES: Dict[str, str]
 
     NETWORK_RESET_CMD: str
     NETWORK_RESET_TIMEOUT: int
     NETWORK_RESET_WAIT: int
+
+    ENABLE_LOGGING: bool
+    LOG_DIR: str
+    LOG_LEVEL: str
+
+    PROXIES: Dict[str, str]
 
     @classmethod
     def load(cls) -> "AppConfig":
@@ -56,15 +56,15 @@ class AppConfig:
             PASSWORD=get_env_or_fatal("CSUST_PASSWORD"),
             DAEMON_EXEC_INTERVAL=get_env_or_default("DAEMON_EXEC_INTERVAL", 20),
             DAEMON_RETRY_INTERVAL=get_env_or_default("DAEMON_RETRY_INTERVAL", 3),
-            ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
-            LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
-            LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
             CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
             LOGIN_TIMEOUT=get_env_or_default("LOGIN_TIMEOUT", 10),
-            PROXIES={"http": "", "https": ""},
             NETWORK_RESET_CMD=get_env_or_default("NETWORK_RESET_CMD", ""),
             NETWORK_RESET_TIMEOUT=get_env_or_default("NETWORK_RESET_TIMEOUT", 20),
             NETWORK_RESET_WAIT=get_env_or_default("NETWORK_RESET_WAIT", 5),
+            ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
+            LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
+            LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
+            PROXIES={"http": "", "https": ""},
         )
 
 
