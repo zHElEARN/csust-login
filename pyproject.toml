@@ -22,6 +22,9 @@ dependencies = [
     "dnspython (>=2.8.0,<3.0.0)",
 ]
 
+[project.optional-dependencies]
+ui = ["PyQt6 (>=6.8.0,<7.0.0)"]
+
 [project.urls]
 Homepage = "https://github.com/zHElEARN/csust-login"
 Repository = "https://github.com/zHElEARN/csust-login"
@@ -37,6 +40,7 @@ dev = ["ruff (>=0.15.6,<0.16.0)"]
 [project.scripts]
 csust-login = "csust_login.login:main"
 csust-login-daemon = "csust_login.daemon:main"
+csust-login-ui = "csust_login.ui:main"
 
 [tool.ruff]
 line-length = 320
