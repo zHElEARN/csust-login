@@ -1,6 +1,6 @@
-# csust-login-crack
+# csust-login-script
 
-`csust-login-crack` 是一个用于长沙理工大学校园网登录的 Python 项目。本项目适配 2025 年上半年学校的新登录系统。
+`csust-login-script` 是一个用于长沙理工大学校园网登录的 Python 项目。本项目适配 2025 年上半年学校的新登录系统。
 
 ## 环境要求
 
