@@ -11,7 +11,7 @@ class QtLogHandler(logging.Handler):
     def __init__(self, signaler: LogSignaler) -> None:
         super().__init__()
         self.signaler = signaler
-        self.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S"))
+        self.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
     def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)

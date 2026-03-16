@@ -22,7 +22,7 @@ def get_logger(name: str) -> logging.Logger:
 
         if config.ENABLE_LOGGING:
             os.makedirs(config.LOG_DIR, exist_ok=True)
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%H:%M:%S")
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
