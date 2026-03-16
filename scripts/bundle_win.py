@@ -6,11 +6,11 @@ def build():
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
 
-    print(f"正在项目根目录进行 macOS 构建: {project_root}")
+    print(f"正在项目根目录进行 Windows 构建: {project_root}")
 
     main_script = os.path.join("src", "csust_login", "ui", "__main__.py")
     resources_src = os.path.join("src", "csust_login", "resources")
-    icon_file = os.path.join("src", "csust_login", "resources", "icons", "app_icon.icns")
+    icon_file = os.path.join("src", "csust_login", "resources", "icons", "app_icon.ico")
 
     # 构建命令
     cmd = [
@@ -19,7 +19,7 @@ def build():
         "--windowed",
         "--name=CSUST-Login",
         f"--icon={icon_file}",
-        f"--add-data={resources_src}:resources",
+        f"--add-data={resources_src};resources",
         "--clean",
         main_script,
     ]
