@@ -3,8 +3,8 @@ import time
 
 import schedule
 
-from config import config
 import login
+from config import config
 from logger import get_logger
 
 logger = get_logger("daemon")

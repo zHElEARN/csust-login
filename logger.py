@@ -20,9 +20,7 @@ def get_logger(name: str) -> logging.Logger:
         logger.setLevel(log_level)
 
         os.makedirs(config.LOG_DIR, exist_ok=True)
-        formatter = logging.Formatter(
-            f"%(asctime)s - {name} - %(levelname)s - %(message)s"
-        )
+        formatter = logging.Formatter(f"%(asctime)s - {name} - %(levelname)s - %(message)s")
 
         log_filepath = os.path.join(config.LOG_DIR, "app.log")
 

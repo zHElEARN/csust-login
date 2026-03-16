@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from typing import TypeVar, cast
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,7 +34,10 @@ class AppConfig:
     ENABLE_LOGGING: bool
     LOG_DIR: str
     LOG_LEVEL: str
+
     CHECK_NETWORK_TIMEOUT: int
+    LOGIN_TIMEOUT: int
+    GET_LOCATION_TIMEOUT: int
 
     @classmethod
     def load(cls) -> "AppConfig":
@@ -45,6 +49,8 @@ class AppConfig:
             LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
             LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
             CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
+            LOGIN_TIMEOUT=get_env_or_default("LOGIN_TIMEOUT", 10),
+            GET_LOCATION_TIMEOUT=get_env_or_default("GET_LOCATION_TIMEOUT", 10),
         )
 
 

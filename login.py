@@ -34,9 +34,7 @@ class LoginSession:
     def __init__(self) -> None:
         self._session = requests.Session()
 
-    def login(
-        self, username: str, password: str, location_params: Dict[str, str]
-    ) -> Tuple[bool, str]:
+    def login(self, username: str, password: str, location_params: Dict[str, str]) -> Tuple[bool, str]:
         """执行登录操作"""
         params = {
             "callback": "dr1004",
@@ -59,7 +57,7 @@ class LoginSession:
                 params=params,
                 proxies=proxies,
                 verify=False,
-                timeout=9,
+                timeout=config.LOGIN_TIMEOUT,
             )
             response.raise_for_status()
             data = self._parse_callback(response.text)
@@ -81,9 +79,7 @@ class LoginSession:
     def get_location_parameters() -> Dict[str, str]:
         """获取重定向地址中的查询参数"""
         try:
-            response = requests.get(
-                "http://10.10.10.10/", allow_redirects=False, proxies=proxies, timeout=6
-            )
+            response = requests.get("http://10.10.10.10/", allow_redirects=False, proxies=proxies, timeout=config.GET_LOCATION_TIMEOUT)
             response.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"获取定位参数失败: {e}")
@@ -111,9 +107,7 @@ def main() -> int:
                 raise RuntimeError("无法获取网络位置参数")
 
             # 登录流程
-            success, msg = session.login(
-                config.USERNAME, config.PASSWORD, location_params
-            )
+            success, msg = session.login(config.USERNAME, config.PASSWORD, location_params)
             if success:
                 logger.info("校园网登录成功！")
                 return 0

@@ -15,3 +15,13 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = ["ruff (>=0.15.6,<0.16.0)"]
+
+[tool.ruff]
+line-length = 320
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
