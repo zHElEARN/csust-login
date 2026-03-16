@@ -1,6 +1,7 @@
+import json
 import os
-from dataclasses import dataclass
-from typing import Dict, TypeVar, cast
+from dataclasses import asdict, dataclass, fields
+from typing import TypeVar, cast
 
 import urllib3
 from dotenv import load_dotenv
@@ -10,6 +11,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 load_dotenv()
 
 T = TypeVar("T")
+
+DEFAULT_CONFIG_PATH = "config.json"
 
 
 def get_env_or_default(key: str, default: T) -> T:
@@ -40,7 +43,7 @@ class AppConfig:
     LOG_DIR: str
     LOG_LEVEL: str
 
-    PROXIES: Dict[str, str]
+    PROXIES = {"http": "", "https": ""}
 
     @classmethod
     def load(cls) -> "AppConfig":
@@ -57,8 +60,27 @@ class AppConfig:
             ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
             LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
             LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
-            PROXIES={"http": "", "https": ""},
         )
+
+    def save_to_json(self, path: str = DEFAULT_CONFIG_PATH) -> None:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(asdict(self), f, indent=4, ensure_ascii=False)
+
+    @classmethod
+    def load_from_json(cls, path: str = DEFAULT_CONFIG_PATH) -> "AppConfig":
+        if not os.path.exists(path):
+            return cls.load()
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+            field_names = {f.name for f in fields(cls)}
+            data = {k: v for k, v in data.items() if k in field_names}
+
+            default_config = cls.load()
+            for key, value in asdict(default_config).items():
+                if key not in data:
+                    data[key] = value
+            return cls(**data)
 
 
 config = AppConfig.load()

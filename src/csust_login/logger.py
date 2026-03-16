@@ -5,41 +5,43 @@ from logging.handlers import TimedRotatingFileHandler
 
 from .config import config
 
+_initialized = False
+
 
 def get_logger(name: str) -> logging.Logger:
+    global _initialized
     logger = logging.getLogger(name)
 
-    if logger.hasHandlers():
-        return logger
+    logger.propagate = True
 
-    logger.propagate = False
-
-    if config.ENABLE_LOGGING:
+    if not _initialized:
+        root = logging.getLogger()
         level_str = getattr(config, "LOG_LEVEL", "INFO").upper()
         log_level = getattr(logging, level_str, logging.INFO)
-        logger.setLevel(log_level)
+        root.setLevel(log_level)
 
-        os.makedirs(config.LOG_DIR, exist_ok=True)
-        formatter = logging.Formatter(f"%(asctime)s - {name} - %(levelname)s - %(message)s")
+        if config.ENABLE_LOGGING:
+            os.makedirs(config.LOG_DIR, exist_ok=True)
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%H:%M:%S")
 
-        log_filepath = os.path.join(config.LOG_DIR, "app.log")
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(formatter)
+            root.addHandler(console_handler)
 
-        file_handler = TimedRotatingFileHandler(
-            filename=log_filepath,
-            when="midnight",
-            interval=1,
-            backupCount=7,
-            encoding="utf-8",
-            utc=False,
-        )
-        file_handler.setFormatter(formatter)
+            log_filepath = os.path.join(config.LOG_DIR, "app.log")
+            file_handler = TimedRotatingFileHandler(
+                filename=log_filepath,
+                when="midnight",
+                interval=1,
+                backupCount=7,
+                encoding="utf-8",
+                utc=False,
+            )
+            file_handler.setFormatter(formatter)
+            root.addHandler(file_handler)
+        else:
+            root.addHandler(logging.NullHandler())
 
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-    else:
-        logger.addHandler(logging.NullHandler())
+        _initialized = True
 
     return logger
