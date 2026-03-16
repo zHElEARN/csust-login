@@ -1,6 +1,8 @@
 import logging
+import os
+import sys
 
-from PyQt6.QtGui import QCloseEvent, QFontDatabase
+from PyQt6.QtGui import QCloseEvent, QFontDatabase, QIcon
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -18,18 +20,18 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from ..config import AppConfig, config
-from .logger import LogSignaler, QtLogHandler
-from .worker import DaemonWorker
+from csust_login.config import AppConfig, config
+from csust_login.ui.logger import LogSignaler, QtLogHandler
+from csust_login.ui.worker import DaemonWorker
 
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        # 加载配置
         self.app_config = AppConfig.load_from_file()
-
+        # 加载配置
         self.setWindowTitle("长理校园网自动登录")
+        self._set_window_icon()
         self.setMinimumSize(520, 620)
 
         central_widget = QWidget()
@@ -48,6 +50,23 @@ class MainWindow(QMainWindow):
         self._load_config_to_ui()
 
         self.worker = None
+
+    def _set_window_icon(self) -> None:
+        """设置窗口图标"""
+        try:
+            if getattr(sys, "frozen", False):
+                # PyInstaller 运行环境
+                base_dir = getattr(sys, "_MEIPASS")
+            else:
+                # 正常 Python 运行环境
+                ui_dir = os.path.dirname(os.path.abspath(__file__))
+                base_dir = os.path.dirname(ui_dir)
+
+            icon_path = os.path.join(base_dir, "resources", "icons", "app_icon.png")
+            if os.path.exists(icon_path):
+                self.setWindowIcon(QIcon(icon_path))
+        except Exception:
+            pass
 
     def _setup_logging(self) -> None:
         self.log_signaler = LogSignaler()

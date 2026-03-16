@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import dns.resolver
 import requests
 
-from .config import config
+from csust_login.config import config
 
 
 def check_network_status() -> tuple[bool, dict[str, str] | None]:

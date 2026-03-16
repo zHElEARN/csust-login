@@ -4,10 +4,10 @@ import time
 from notifypy import Notify
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from ..config import AppConfig
-from ..logger import get_logger
-from ..login import login
-from ..utils import check_network_status
+from csust_login.config import AppConfig
+from csust_login.logger import get_logger
+from csust_login.login import login
+from csust_login.utils import check_network_status
 
 
 class DaemonWorker(QThread):

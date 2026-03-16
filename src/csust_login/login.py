@@ -5,9 +5,9 @@ from typing import Any
 
 import requests
 
-from .config import DEFAULT_CONFIG_PATH, config
-from .logger import get_logger
-from .utils import check_network_status, resolve_domain
+from csust_login.config import DEFAULT_CONFIG_PATH, config
+from csust_login.logger import get_logger
+from csust_login.utils import check_network_status, resolve_domain
 
 logger = get_logger("login")
 

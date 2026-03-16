@@ -2,10 +2,10 @@ import subprocess
 import sys
 import time
 
-from .config import DEFAULT_CONFIG_PATH, config
-from .logger import get_logger
-from .login import login
-from .utils import check_network_status
+from csust_login.config import DEFAULT_CONFIG_PATH, config
+from csust_login.logger import get_logger
+from csust_login.login import login
+from csust_login.utils import check_network_status
 
 logger = get_logger("daemon")
 
