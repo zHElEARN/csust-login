@@ -232,21 +232,6 @@ files = [
 ]
 
 [[package]]
-name = "schedule"
-version = "1.2.2"
-description = "Job scheduling for humans."
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "schedule-1.2.2-py3-none-any.whl", hash = "sha256:5bef4a2a0183abf44046ae0d164cadcac21b1db011bdd8102e4a0c1e91e06a7d"},
-    {file = "schedule-1.2.2.tar.gz", hash = "sha256:15fe9c75fe5fd9b9627f3f19cc0ef1420508f9f9a46f45cd0769ef75ede5f0b7"},
-]
-
-[package.extras]
-timezone = ["pytz"]
-
-[[package]]
 name = "urllib3"
 version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -267,4 +252,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "b3890be21e8088c6b8b5a38fe660f56c6fdb123aee58d0aefa3e306046613490"
+content-hash = "f568c71f9dc024df1424bd2e8b3b002e869bb32bf8f71fdc11a5c4d1ab5e51f6"

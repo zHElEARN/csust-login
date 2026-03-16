@@ -32,7 +32,9 @@ def get_env_or_default(key: str, default: T) -> T:
 class AppConfig:
     USERNAME: str
     PASSWORD: str
+
     DAEMON_EXEC_INTERVAL: int
+    DAEMON_RETRY_INTERVAL: int
 
     ENABLE_LOGGING: bool
     LOG_DIR: str
@@ -50,6 +52,7 @@ class AppConfig:
             USERNAME=get_env_or_fatal("CSUST_USERNAME"),
             PASSWORD=get_env_or_fatal("CSUST_PASSWORD"),
             DAEMON_EXEC_INTERVAL=get_env_or_default("DAEMON_EXEC_INTERVAL", 20),
+            DAEMON_RETRY_INTERVAL=get_env_or_default("DAEMON_RETRY_INTERVAL", 3),
             ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
             LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
             LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
