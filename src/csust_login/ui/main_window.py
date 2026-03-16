@@ -213,10 +213,7 @@ class MainWindow(QMainWindow):
         self.app_config.LOG_LEVEL = self.log_level_combo.currentText()
         self.app_config.LOG_DIR = self.log_path_input.text()
 
-        # 同时更新全局 config 对象，以便其他模块（如 login/utils）使用
-        for key, value in self.app_config.__dict__.items():
-            if hasattr(config, key):
-                setattr(config, key, value)
+        config.update_from(self.app_config)
 
         self.app_config.save_to_json()
 

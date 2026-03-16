@@ -5,7 +5,7 @@ from typing import Any
 
 import requests
 
-from .config import config
+from .config import DEFAULT_CONFIG_PATH, config
 from .logger import get_logger
 from .utils import check_network_status, resolve_domain
 
@@ -104,7 +104,7 @@ def login(location_params: dict[str, str]) -> bool:
 
 def main():
     if not config.USERNAME or not config.PASSWORD:
-        logger.error("必须设置环境变量 CSUST_USERNAME 和 CSUST_PASSWORD")
+        logger.error(f"请先在 {DEFAULT_CONFIG_PATH} 中配置用户名和密码")
         sys.exit(1)
 
     is_online, location_params = check_network_status()

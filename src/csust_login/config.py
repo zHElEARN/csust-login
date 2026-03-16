@@ -1,27 +1,30 @@
 import json
 import os
 from dataclasses import asdict, dataclass, fields
-from typing import TypeVar, cast
 
 import urllib3
-from dotenv import load_dotenv
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-load_dotenv()
-
-T = TypeVar("T")
 
 DEFAULT_CONFIG_PATH = "config.json"
 
 
-def get_env_or_default(key: str, default: T) -> T:
-    value = os.getenv(key)
-    if value is None:
-        return default
-    if isinstance(default, bool):
-        return cast(T, value.lower() == "true")
-    return type(default)(value)
+def _get_default_config() -> "AppConfig":
+    """获取程序默认配置项"""
+    return AppConfig(
+        USERNAME="",
+        PASSWORD="",
+        DAEMON_EXEC_INTERVAL=20,
+        DAEMON_RETRY_INTERVAL=3,
+        CHECK_NETWORK_TIMEOUT=5,
+        LOGIN_TIMEOUT=10,
+        NETWORK_RESET_CMD="",
+        NETWORK_RESET_TIMEOUT=20,
+        NETWORK_RESET_WAIT=5,
+        ENABLE_LOGGING=True,
+        LOG_DIR="logs",
+        LOG_LEVEL="INFO",
+    )
 
 
 @dataclass
@@ -47,20 +50,13 @@ class AppConfig:
 
     @classmethod
     def load(cls) -> "AppConfig":
-        return cls(
-            USERNAME=get_env_or_default("CSUST_USERNAME", ""),
-            PASSWORD=get_env_or_default("CSUST_PASSWORD", ""),
-            DAEMON_EXEC_INTERVAL=get_env_or_default("DAEMON_EXEC_INTERVAL", 20),
-            DAEMON_RETRY_INTERVAL=get_env_or_default("DAEMON_RETRY_INTERVAL", 3),
-            CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
-            LOGIN_TIMEOUT=get_env_or_default("LOGIN_TIMEOUT", 10),
-            NETWORK_RESET_CMD=get_env_or_default("NETWORK_RESET_CMD", ""),
-            NETWORK_RESET_TIMEOUT=get_env_or_default("NETWORK_RESET_TIMEOUT", 20),
-            NETWORK_RESET_WAIT=get_env_or_default("NETWORK_RESET_WAIT", 5),
-            ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
-            LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
-            LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
-        )
+        """获取默认配置实例"""
+        return _get_default_config()
+
+    def update_from(self, other: "AppConfig") -> None:
+        """从另一个配置对象更新当前对象的所有字段"""
+        for field in fields(self):
+            setattr(self, field.name, getattr(other, field.name))
 
     def save_to_json(self, path: str = DEFAULT_CONFIG_PATH) -> None:
         with open(path, "w", encoding="utf-8") as f:
@@ -71,16 +67,20 @@ class AppConfig:
         if not os.path.exists(path):
             return cls.load()
         with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                return cls.load()
 
             field_names = {f.name for f in fields(cls)}
-            data = {k: v for k, v in data.items() if k in field_names}
+            filtered_data = {k: v for k, v in data.items() if k in field_names}
 
-            default_config = cls.load()
-            for key, value in asdict(default_config).items():
-                if key not in data:
-                    data[key] = value
-            return cls(**data)
+            default_config = _get_default_config()
+            for field in fields(cls):
+                if field.name not in filtered_data:
+                    filtered_data[field.name] = getattr(default_config, field.name)
+
+            return cls(**filtered_data)
 
 
-config = AppConfig.load()
+config = AppConfig.load_from_json()
