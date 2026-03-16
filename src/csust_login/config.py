@@ -42,9 +42,12 @@ class AppConfig:
 
     CHECK_NETWORK_TIMEOUT: int
     LOGIN_TIMEOUT: int
-    GET_LOCATION_TIMEOUT: int
 
     PROXIES: Dict[str, str]
+
+    NETWORK_RESET_CMD: str
+    NETWORK_RESET_TIMEOUT: int
+    NETWORK_RESET_WAIT: int
 
     @classmethod
     def load(cls) -> "AppConfig":
@@ -58,8 +61,10 @@ class AppConfig:
             LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
             CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
             LOGIN_TIMEOUT=get_env_or_default("LOGIN_TIMEOUT", 10),
-            GET_LOCATION_TIMEOUT=get_env_or_default("GET_LOCATION_TIMEOUT", 10),
             PROXIES={"http": "", "https": ""},
+            NETWORK_RESET_CMD=get_env_or_default("NETWORK_RESET_CMD", ""),
+            NETWORK_RESET_TIMEOUT=get_env_or_default("NETWORK_RESET_TIMEOUT", 20),
+            NETWORK_RESET_WAIT=get_env_or_default("NETWORK_RESET_WAIT", 5),
         )
 
 

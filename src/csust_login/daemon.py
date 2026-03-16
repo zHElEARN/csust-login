@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import time
 
@@ -32,7 +33,28 @@ def start_daemon() -> None:
                         logger.error("后台登录失败，即将重新尝试...")
                         time.sleep(config.DAEMON_RETRY_INTERVAL)
                 else:
-                    logger.warning("检测到离线，但未能获取到网关参数，等待重试...")
+                    logger.warning("未能获取到网关参数，可能物理断网或 Wi-Fi 已断开。")
+
+                    if config.NETWORK_RESET_CMD:
+                        logger.info(f"正在执行网络重置命令: {config.NETWORK_RESET_CMD}")
+                        try:
+                            subprocess.run(
+                                config.NETWORK_RESET_CMD,
+                                shell=True,
+                                check=True,
+                                timeout=config.NETWORK_RESET_TIMEOUT,
+                                capture_output=True,
+                                text=True,
+                            )
+                            logger.info(f"网络重置命令执行完毕，等待 {config.NETWORK_RESET_WAIT} 秒让网络接口恢复...")
+                            time.sleep(config.NETWORK_RESET_WAIT)
+                        except subprocess.TimeoutExpired:
+                            logger.error(f"网络重置命令执行超时 ({config.NETWORK_RESET_TIMEOUT}秒)")
+                        except subprocess.CalledProcessError as e:
+                            logger.error(f"网络重置命令执行失败，退出码: {e.returncode}, 错误信息: {e.stderr.strip()}")
+                        except Exception as e:
+                            logger.error(f"执行自定义命令时发生未知异常: {e}")
+
                     time.sleep(config.DAEMON_RETRY_INTERVAL)
 
         except Exception as e:
