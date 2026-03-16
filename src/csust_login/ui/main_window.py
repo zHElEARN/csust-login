@@ -1,6 +1,6 @@
 import logging
 
-from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtGui import QCloseEvent, QFontDatabase
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -130,6 +130,7 @@ class MainWindow(QMainWindow):
         log_layout = QVBoxLayout(log_group)
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
+        self.log_output.setFont(QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont))
         self.log_output.setPlaceholderText("日志信息将在此处显示...")
         log_layout.addWidget(self.log_output)
         layout.addWidget(log_group, stretch=1)
