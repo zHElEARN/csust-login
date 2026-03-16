@@ -8,6 +8,7 @@ requires-python = ">=3.10"
 dependencies = [
     "python-dotenv (>=1.2.2,<2.0.0)",
     "requests (>=2.32.5,<3.0.0)",
+    "dnspython (>=2.8.0,<3.0.0)",
 ]
 
 

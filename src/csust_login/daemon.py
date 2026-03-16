@@ -16,6 +16,7 @@ def start_daemon() -> None:
     while True:
         try:
             if is_online():
+                logger.info("网络正常，无需登录")
                 time.sleep(config.DAEMON_EXEC_INTERVAL)
             else:
                 logger.info("检测到离线，准备进行登录...")

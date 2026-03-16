@@ -8,7 +8,7 @@ import requests
 
 from .config import config
 from .logger import get_logger
-from .utils import is_online
+from .utils import is_online, resolve_domain
 
 logger = get_logger("login")
 
@@ -22,6 +22,18 @@ class LoginSession:
         执行登录操作
         :return: (是否成功, 响应信息或错误原因)
         """
+
+        domain = "login.csust.edu.cn"
+        dns_server = "10.255.255.25"
+        fallback_ip = "192.168.7.221"
+
+        target_ip = resolve_domain(domain, dns_server)
+        if target_ip:
+            logger.info(f"通过自定义 DNS ({dns_server}) 成功解析 {domain} -> {target_ip}")
+        else:
+            target_ip = fallback_ip
+            logger.warning(f"自定义 DNS 解析失败，将使用备用 IP: {fallback_ip}")
+
         params = {
             "callback": "dr1004",
             "login_method": 1,
@@ -37,9 +49,13 @@ class LoginSession:
             "v": 3333,
         }
 
+        headers = {"Host": f"{domain}:802"}
+        target_url = f"https://{target_ip}:802/eportal/portal/login"
+
         try:
             response = self._session.get(
-                "https://login.csust.edu.cn:802/eportal/portal/login",
+                target_url,
+                headers=headers,
                 params=params,
                 proxies=config.PROXIES,
                 verify=False,
