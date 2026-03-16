@@ -12,13 +12,6 @@ load_dotenv()
 T = TypeVar("T")
 
 
-def get_env_or_fatal(key: str) -> str:
-    value = os.getenv(key)
-    if not value:
-        raise ValueError(f"必须设置环境变量 {key}")
-    return value
-
-
 def get_env_or_default(key: str, default: T) -> T:
     value = os.getenv(key)
     if value is None:
@@ -52,8 +45,8 @@ class AppConfig:
     @classmethod
     def load(cls) -> "AppConfig":
         return cls(
-            USERNAME=get_env_or_fatal("CSUST_USERNAME"),
-            PASSWORD=get_env_or_fatal("CSUST_PASSWORD"),
+            USERNAME=get_env_or_default("CSUST_USERNAME", ""),
+            PASSWORD=get_env_or_default("CSUST_PASSWORD", ""),
             DAEMON_EXEC_INTERVAL=get_env_or_default("DAEMON_EXEC_INTERVAL", 20),
             DAEMON_RETRY_INTERVAL=get_env_or_default("DAEMON_RETRY_INTERVAL", 3),
             CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),

@@ -103,6 +103,10 @@ def login(location_params: dict[str, str]) -> bool:
 
 
 def main():
+    if not config.USERNAME or not config.PASSWORD:
+        logger.error("必须设置环境变量 CSUST_USERNAME 和 CSUST_PASSWORD")
+        sys.exit(1)
+
     is_online, location_params = check_network_status()
 
     if is_online:
