@@ -41,16 +41,3 @@ python login.py
 ```bash
 python daemon.py
 ```
-
-> \[!NOTE]
->
-> 学校登录系统的验证码框是个摆设，实际上可以直接跳过
-
-## ~~工作原理~~
-
-~~项目使用基于 CNN 的机器学习模型（训练代码见[csust-captcha-CNN](https://github.com/zHElEARN/csust-captcha-CNN)）来自动识别校园网登录验证码，主要流程包括：~~
-
-~~1. 自动获取网络连接状态~~
-~~2. 获取登录页面参数~~
-~~3. 验证码识别与校验~~
-~~4. 自动提交登录请求~~
