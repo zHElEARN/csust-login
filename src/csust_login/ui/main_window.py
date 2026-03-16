@@ -1,10 +1,8 @@
-import logging
 import os
 import sys
 
 from PyQt6.QtGui import QCloseEvent, QFontDatabase, QIcon
 from PyQt6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QFormLayout,
     QGroupBox,
@@ -21,6 +19,8 @@ from PyQt6.QtWidgets import (
 )
 
 from csust_login.config import AppConfig, config
+from csust_login.logger import setup_ui_logging
+from csust_login.ui.config_path import get_ui_config_path
 from csust_login.ui.logger import LogSignaler, QtLogHandler
 from csust_login.ui.worker import DaemonWorker
 
@@ -28,7 +28,7 @@ from csust_login.ui.worker import DaemonWorker
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.app_config = AppConfig.load_from_file()
+        self.app_config = AppConfig.load_from_file(get_ui_config_path())
         # 加载配置
         self.setWindowTitle("长理校园网自动登录")
         self._set_window_icon()
@@ -72,14 +72,7 @@ class MainWindow(QMainWindow):
         self.log_signaler = LogSignaler()
         self.log_signaler.log_received.connect(self._append_log)
         self.log_handler = QtLogHandler(self.log_signaler)
-
-        root_logger = logging.getLogger()
-        root_logger.addHandler(self.log_handler)
-
-        level_str = getattr(self.app_config, "LOG_LEVEL", "INFO").upper()
-        log_level = getattr(logging, level_str, logging.INFO)
-        root_logger.setLevel(log_level)
-        self.log_handler.setLevel(log_level)
+        setup_ui_logging(self.log_handler)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         """窗口关闭时停止守护进程"""
@@ -191,15 +184,10 @@ class MainWindow(QMainWindow):
         log_config_group = QGroupBox("日志配置")
         log_config_layout = QFormLayout(log_config_group)
 
-        self.enable_log_check = QCheckBox("启用本地文件日志记录")
         self.log_level_combo = QComboBox()
         self.log_level_combo.addItems(["DEBUG", "INFO", "WARNING", "ERROR"])
-        self.log_path_input = QLineEdit()
-        self.log_path_input.setPlaceholderText("默认为 logs")
 
-        log_config_layout.addRow("开启日志:", self.enable_log_check)
         log_config_layout.addRow("日志级别:", self.log_level_combo)
-        log_config_layout.addRow("日志路径:", self.log_path_input)
         layout.addWidget(log_config_group)
 
         layout.addStretch()
@@ -215,9 +203,7 @@ class MainWindow(QMainWindow):
         self.reset_cmd_input.setPlainText(self.app_config.NETWORK_RESET_CMD)
         self.reset_timeout_spin.setValue(self.app_config.NETWORK_RESET_TIMEOUT)
         self.reset_wait_spin.setValue(self.app_config.NETWORK_RESET_WAIT)
-        self.enable_log_check.setChecked(self.app_config.ENABLE_LOGGING)
         self.log_level_combo.setCurrentText(self.app_config.LOG_LEVEL)
-        self.log_path_input.setText(self.app_config.LOG_DIR)
 
     def _save_ui_to_config(self) -> None:
         self.app_config.USERNAME = self.username_input.text()
@@ -229,13 +215,11 @@ class MainWindow(QMainWindow):
         self.app_config.NETWORK_RESET_CMD = self.reset_cmd_input.toPlainText().strip()
         self.app_config.NETWORK_RESET_TIMEOUT = self.reset_timeout_spin.value()
         self.app_config.NETWORK_RESET_WAIT = self.reset_wait_spin.value()
-        self.app_config.ENABLE_LOGGING = self.enable_log_check.isChecked()
         self.app_config.LOG_LEVEL = self.log_level_combo.currentText()
-        self.app_config.LOG_DIR = self.log_path_input.text()
 
         config.update_from(self.app_config)
 
-        self.app_config.save()
+        self.app_config.save(get_ui_config_path())
 
     def _toggle_inputs(self, enabled: bool) -> None:
         """启用或禁用所有配置输入项"""
@@ -249,9 +233,7 @@ class MainWindow(QMainWindow):
             self.reset_cmd_input,
             self.reset_timeout_spin,
             self.reset_wait_spin,
-            self.enable_log_check,
             self.log_level_combo,
-            self.log_path_input,
         ]
         for widget in widgets:
             widget.setEnabled(enabled)

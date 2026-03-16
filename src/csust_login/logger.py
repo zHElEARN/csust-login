@@ -5,43 +5,51 @@ from logging.handlers import TimedRotatingFileHandler
 
 from .config import config
 
-_initialized = False
+_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 
 def get_logger(name: str) -> logging.Logger:
-    global _initialized
-    logger = logging.getLogger(name)
+    return logging.getLogger(name)
 
-    logger.propagate = True
 
-    if not _initialized:
-        root = logging.getLogger()
-        level_str = getattr(config, "LOG_LEVEL", "INFO").upper()
-        log_level = getattr(logging, level_str, logging.INFO)
-        root.setLevel(log_level)
+def _get_log_level() -> int:
+    level_str = getattr(config, "LOG_LEVEL", "INFO").upper()
+    return getattr(logging, level_str, logging.INFO)
 
-        if config.ENABLE_LOGGING:
-            os.makedirs(config.LOG_DIR, exist_ok=True)
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(formatter)
-            root.addHandler(console_handler)
+def setup_cli_logging() -> None:
+    root = logging.getLogger()
+    log_level = _get_log_level()
+    root.setLevel(log_level)
 
-            log_filepath = os.path.join(config.LOG_DIR, "app.log")
-            file_handler = TimedRotatingFileHandler(
-                filename=log_filepath,
-                when="midnight",
-                interval=1,
-                backupCount=7,
-                encoding="utf-8",
-                utc=False,
-            )
-            file_handler.setFormatter(formatter)
-            root.addHandler(file_handler)
-        else:
-            root.addHandler(logging.NullHandler())
+    formatter = logging.Formatter(_LOG_FORMAT)
 
-        _initialized = True
+    # 控制台 handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(log_level)
+    root.addHandler(console_handler)
 
-    return logger
+    # 文件 handler
+    if config.ENABLE_LOGGING:
+        os.makedirs(config.LOG_DIR, exist_ok=True)
+        log_filepath = os.path.join(config.LOG_DIR, "app.log")
+        file_handler = TimedRotatingFileHandler(
+            filename=log_filepath,
+            when="midnight",
+            interval=1,
+            backupCount=7,
+            encoding="utf-8",
+            utc=False,
+        )
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(log_level)
+        root.addHandler(file_handler)
+
+
+def setup_ui_logging(qt_handler: logging.Handler) -> None:
+    root = logging.getLogger()
+    log_level = _get_log_level()
+    root.setLevel(log_level)
+    qt_handler.setLevel(log_level)
+    root.addHandler(qt_handler)

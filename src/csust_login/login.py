@@ -6,7 +6,7 @@ from typing import Any
 import requests
 
 from csust_login.config import DEFAULT_CONFIG_PATH, config
-from csust_login.logger import get_logger
+from csust_login.logger import get_logger, setup_cli_logging
 from csust_login.utils import check_network_status, resolve_domain
 
 logger = get_logger("login")
@@ -103,6 +103,7 @@ def login(location_params: dict[str, str]) -> bool:
 
 
 def main():
+    setup_cli_logging()
     if not config.USERNAME or not config.PASSWORD:
         logger.error(f"请先在 {DEFAULT_CONFIG_PATH} 中配置用户名和密码")
         sys.exit(1)
