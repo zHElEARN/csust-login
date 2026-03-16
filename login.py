@@ -1,49 +1,19 @@
 import json
-import logging
-import os
 import re
-from logging.handlers import TimedRotatingFileHandler
-from pathlib import Path
 from typing import Any, Dict, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import requests
 import urllib3
-from dotenv import load_dotenv
 
-script_dir = Path(__file__).resolve().parent
-os.chdir(script_dir)
+from config import config
+from logger import get_logger
 
-# 加载环境变量
-load_dotenv()
-
+logger = get_logger("login")
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)
-
-
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        TimedRotatingFileHandler(
-            filename=os.path.join(log_dir, "login.log"),
-            when="midnight",
-            interval=1,
-            backupCount=7,
-            encoding="utf-8",
-            utc=False,
-        ),
-        logging.StreamHandler(),
-    ],
-)
-logger = logging.getLogger(__name__)
-
-
-proxies = {"http": None, "https": None}
+proxies: Dict[str, str] = {"http": "", "https": ""}
 
 
 # 检查是否联网的函数
@@ -130,12 +100,6 @@ class LoginSession:
 
 def main() -> int:
     try:
-        username = os.getenv("CSUST_USERNAME")
-        password = os.getenv("CSUST_PASSWORD")
-
-        if not username or not password:
-            raise ValueError("请设置CSUST_USERNAME和CSUST_PASSWORD环境变量")
-
         if is_online():
             logger.info("当前已检测到网络连接，无需登录")
             return 0
@@ -148,7 +112,9 @@ def main() -> int:
                 raise RuntimeError("无法获取网络位置参数")
 
             # 登录流程
-            success, msg = session.login(username, password, location_params)
+            success, msg = session.login(
+                config.USERNAME, config.PASSWORD, location_params
+            )
             if success:
                 logger.info("校园网登录成功！")
                 return 0
