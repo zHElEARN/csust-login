@@ -4,7 +4,7 @@ import time
 from .config import config
 from .logger import get_logger
 from .login import login
-from .utils import is_online
+from .utils import check_network_status
 
 logger = get_logger("daemon")
 
@@ -15,18 +15,24 @@ def start_daemon() -> None:
 
     while True:
         try:
-            if is_online():
+            is_online, location_params = check_network_status()
+
+            if is_online:
                 logger.info("网络正常，无需登录")
                 time.sleep(config.DAEMON_EXEC_INTERVAL)
             else:
-                logger.info("检测到离线，准备进行登录...")
-                success = login()
+                if location_params:
+                    logger.info("检测到离线并成功拦截重定向参数，准备进行登录...")
+                    success = login(location_params)
 
-                if success:
-                    logger.info("后台登录成功，恢复常规间隔检测")
-                    time.sleep(config.DAEMON_EXEC_INTERVAL)
+                    if success:
+                        logger.info("后台登录成功，恢复常规间隔检测")
+                        time.sleep(config.DAEMON_EXEC_INTERVAL)
+                    else:
+                        logger.error("后台登录失败，即将重新尝试...")
+                        time.sleep(config.DAEMON_RETRY_INTERVAL)
                 else:
-                    logger.error("后台登录失败，即将重新尝试登录...")
+                    logger.warning("检测到离线，但未能获取到网关参数，等待重试...")
                     time.sleep(config.DAEMON_RETRY_INTERVAL)
 
         except Exception as e:

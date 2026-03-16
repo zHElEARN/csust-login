@@ -2,13 +2,12 @@ import json
 import re
 import sys
 from typing import Any
-from urllib.parse import parse_qs, urlparse
 
 import requests
 
 from .config import config
 from .logger import get_logger
-from .utils import is_online, resolve_domain
+from .utils import check_network_status, resolve_domain
 
 logger = get_logger("login")
 
@@ -78,36 +77,11 @@ class LoginSession:
             raise ValueError("无效的响应格式")
         return json.loads(match.group(1))
 
-    @staticmethod
-    def get_location_parameters() -> tuple[dict[str, str] | None, str]:
-        """
-        获取重定向地址中的查询参数
-        :return: (参数字典, 错误信息)，如果成功则错误信息为空字符串
-        """
-        try:
-            response = requests.get("http://10.10.10.10/", allow_redirects=False, proxies=config.PROXIES, timeout=config.GET_LOCATION_TIMEOUT)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            return None, f"请求重定向地址失败: {e}"
 
-        location = response.headers.get("Location", "")
-        if not location:
-            return None, "响应头中未找到 Location 字段"
-
-        parsed = urlparse(location)
-        params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
-        return params, ""
-
-
-def login() -> bool:
+def login(location_params: dict[str, str]) -> bool:
     try:
         while True:
             session = LoginSession()
-
-            location_params, err_msg = session.get_location_parameters()
-            if location_params is None:
-                logger.error(f"无法获取网络位置参数: {err_msg}")
-                return False
 
             # 登录流程
             success, msg = session.login(config.USERNAME, config.PASSWORD, location_params)
@@ -129,11 +103,16 @@ def login() -> bool:
 
 
 def main():
-    if is_online():
+    is_online, location_params = check_network_status()
+
+    if is_online:
         logger.info("当前已检测到网络连接，无需登录")
         sys.exit(0)
+    elif location_params:
+        sys.exit(0 if login(location_params) else 1)
     else:
-        sys.exit(0 if login() else 1)
+        logger.error("未连接网络，且无法获取登录重定向参数")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
