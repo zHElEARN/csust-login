@@ -1,11 +1,12 @@
+import sys
 import threading
 import time
 
 import schedule
 
-import login
-from config import config
-from logger import get_logger
+from . import login
+from .config import config
+from .logger import get_logger
 
 logger = get_logger("daemon")
 
@@ -36,4 +37,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

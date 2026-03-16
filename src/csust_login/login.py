@@ -1,13 +1,14 @@
 import json
 import re
+import sys
 from typing import Any, Dict, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import requests
 import urllib3
 
-from config import config
-from logger import get_logger
+from .config import config
+from .logger import get_logger
 
 logger = get_logger("login")
 
@@ -126,4 +127,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

@@ -1,5 +1,5 @@
 [project]
-name = "csust-login-script"
+name = "csust-login"
 version = "0.1.0"
 description = ""
 authors = [{ name = "zHElEARN", email = "i@zhelearn.com" }]

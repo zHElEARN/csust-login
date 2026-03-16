@@ -3,7 +3,7 @@ import os
 import sys
 from logging.handlers import TimedRotatingFileHandler
 
-from config import config
+from .config import config
 
 
 def get_logger(name: str) -> logging.Logger:
