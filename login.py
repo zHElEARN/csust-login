@@ -20,11 +20,10 @@ proxies: Dict[str, str] = {"http": "", "https": ""}
 def is_online() -> bool:
     """检测当前网络状态"""
     try:
-        # 使用generate_204页面检测是否联网
         response = requests.get(
             "http://connect.rom.miui.com/generate_204",
             proxies=proxies,
-            timeout=5,
+            timeout=config.CHECK_NETWORK_TIMEOUT,
         )
         return response.status_code == 204
     except requests.RequestException:

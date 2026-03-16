@@ -29,9 +29,11 @@ class AppConfig:
     USERNAME: str
     PASSWORD: str
     DAEMON_EXEC_INTERVAL: int
+
     ENABLE_LOGGING: bool
     LOG_DIR: str
     LOG_LEVEL: str
+    CHECK_NETWORK_TIMEOUT: int
 
     @classmethod
     def load(cls) -> "AppConfig":
@@ -42,6 +44,7 @@ class AppConfig:
             ENABLE_LOGGING=get_env_or_default("ENABLE_LOGGING", True),
             LOG_DIR=get_env_or_default("LOG_DIR", "logs"),
             LOG_LEVEL=get_env_or_default("LOG_LEVEL", "INFO"),
+            CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
         )
 
 
