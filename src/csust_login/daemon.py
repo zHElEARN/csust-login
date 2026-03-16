@@ -7,6 +7,7 @@ import schedule
 from . import login
 from .config import config
 from .logger import get_logger
+from .utils import is_online
 
 logger = get_logger("daemon")
 
@@ -20,7 +21,7 @@ def run_login_script():
         logger.warning("daemon: 上一个任务还未完成，跳过本次执行")
         return
     try:
-        if login.is_online():
+        if is_online():
             logger.info("daemon: 网络连接正常，无需进行登录")
         else:
             logger.info("daemon: 准备进行登录")

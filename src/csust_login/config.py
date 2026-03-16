@@ -1,8 +1,11 @@
 import os
 from dataclasses import dataclass
-from typing import TypeVar, cast
+from typing import Dict, TypeVar, cast
 
+import urllib3
 from dotenv import load_dotenv
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv()
 
@@ -39,6 +42,8 @@ class AppConfig:
     LOGIN_TIMEOUT: int
     GET_LOCATION_TIMEOUT: int
 
+    PROXIES: Dict[str, str]
+
     @classmethod
     def load(cls) -> "AppConfig":
         return cls(
@@ -51,6 +56,7 @@ class AppConfig:
             CHECK_NETWORK_TIMEOUT=get_env_or_default("CHECK_NETWORK_TIMEOUT", 5),
             LOGIN_TIMEOUT=get_env_or_default("LOGIN_TIMEOUT", 10),
             GET_LOCATION_TIMEOUT=get_env_or_default("GET_LOCATION_TIMEOUT", 10),
+            PROXIES={"http": "", "https": ""},
         )
 
 

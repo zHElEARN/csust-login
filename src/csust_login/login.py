@@ -5,30 +5,12 @@ from typing import Any, Dict, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import requests
-import urllib3
 
 from .config import config
 from .logger import get_logger
+from .utils import is_online
 
 logger = get_logger("login")
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-proxies: Dict[str, str] = {"http": "", "https": ""}
-
-
-# 检查是否联网的函数
-def is_online() -> bool:
-    """检测当前网络状态"""
-    try:
-        response = requests.get(
-            "http://connect.rom.miui.com/generate_204",
-            proxies=proxies,
-            timeout=config.CHECK_NETWORK_TIMEOUT,
-        )
-        return response.status_code == 204
-    except requests.RequestException:
-        return False
 
 
 class LoginSession:
@@ -56,7 +38,7 @@ class LoginSession:
             response = self._session.get(
                 "https://login.csust.edu.cn:802/eportal/portal/login",
                 params=params,
-                proxies=proxies,
+                proxies=config.PROXIES,
                 verify=False,
                 timeout=config.LOGIN_TIMEOUT,
             )
@@ -80,7 +62,7 @@ class LoginSession:
     def get_location_parameters() -> Dict[str, str]:
         """获取重定向地址中的查询参数"""
         try:
-            response = requests.get("http://10.10.10.10/", allow_redirects=False, proxies=proxies, timeout=config.GET_LOCATION_TIMEOUT)
+            response = requests.get("http://10.10.10.10/", allow_redirects=False, proxies=config.PROXIES, timeout=config.GET_LOCATION_TIMEOUT)
             response.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"获取定位参数失败: {e}")
