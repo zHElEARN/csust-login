@@ -1,6 +1,7 @@
 import subprocess
 import time
 
+from notifypy import Notify
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from ..config import AppConfig
@@ -22,6 +23,17 @@ class DaemonWorker(QThread):
     def stop(self) -> None:
         self.running = False
 
+    def notify(self, title: str, message: str) -> None:
+        """发送系统通知"""
+        try:
+            notification = Notify()
+            notification.title = title
+            notification.message = message
+            notification.application_name = "长理校园网自动登录"
+            notification.send()
+        except Exception as e:
+            self.logger.error(f"发送通知失败: {e}")
+
     def run(self) -> None:
         self.logger.info(f"守护进程已启动，正常检测间隔: {self.config.DAEMON_EXEC_INTERVAL} 秒")
         self.status_changed.emit("正在运行")
@@ -34,16 +46,19 @@ class DaemonWorker(QThread):
                     self.logger.info("网络正常，无需登录")
                     self._sleep(self.config.DAEMON_EXEC_INTERVAL)
                 else:
+                    self.logger.info("检测到离线，准备进行登录...")
+                    self.notify("检测到离线", "检测到离线，准备进行登录...")
                     if location_params:
                         self.logger.info("检测到离线并成功拦截重定向参数，准备进行登录...")
-                        # 确保登录时使用的是最新的配置
                         success = login(location_params)
 
                         if success:
                             self.logger.info("后台登录成功，恢复常规间隔检测")
+                            self.notify("登录成功", "校园网自动登录成功")
                             self._sleep(self.config.DAEMON_EXEC_INTERVAL)
                         else:
                             self.logger.error("后台登录失败，即将重新尝试...")
+                            self.notify("登录失败", "校园网自动登录失败，即将重试")
                             self._sleep(self.config.DAEMON_RETRY_INTERVAL)
                     else:
                         self.logger.warning("未能获取到网关参数，可能物理断网或 Wi-Fi 已断开。")
@@ -60,6 +75,7 @@ class DaemonWorker(QThread):
                                     text=True,
                                 )
                                 self.logger.info(f"网络重置命令执行完毕，等待 {self.config.NETWORK_RESET_WAIT} 秒让网络接口恢复...")
+                                self.notify("网络重置", "已执行网络重置命令，等待恢复")
                                 self._sleep(self.config.NETWORK_RESET_WAIT)
                             except subprocess.TimeoutExpired:
                                 self.logger.error(f"网络重置命令执行超时 ({self.config.NETWORK_RESET_TIMEOUT}秒)")

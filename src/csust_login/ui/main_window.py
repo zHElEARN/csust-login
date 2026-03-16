@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         # 加载配置
         self.app_config = AppConfig.load_from_file()
 
-        self.setWindowTitle("长沙理工大学校园网自动登录")
+        self.setWindowTitle("长理校园网自动登录")
         self.setMinimumSize(520, 620)
 
         central_widget = QWidget()
