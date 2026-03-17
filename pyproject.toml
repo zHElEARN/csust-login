@@ -1,6 +1,6 @@
 [project]
 name = "csust-login"
-version = "1.0.0"
+version = "1.0.1"
 description = "一个用于自动登录长沙理工大学校园网的 Python 脚本工具。该工具能够自动检测网络连接状态，并在掉线时自动进行登录。"
 authors = [{ name = "zHElEARN", email = "i@zhelearn.com" }]
 readme = "README.md"
