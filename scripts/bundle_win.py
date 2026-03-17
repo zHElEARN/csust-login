@@ -20,6 +20,7 @@ def build():
         "--name=CSUST Login",
         f"--icon={icon_file}",
         f"--add-data={resources_src};resources",
+        "--onefile",
         "--clean",
         main_script,
     ]
@@ -29,7 +30,7 @@ def build():
     try:
         subprocess.run(cmd, check=True)
         print("\n构建成功")
-        print("打包结果位于 dist/CSUST Login 目录下")
+        print("打包结果位于 dist/CSUST Login.exe")
     except subprocess.CalledProcessError as e:
         print(f"\n构建失败: {e}")
     except FileNotFoundError:
