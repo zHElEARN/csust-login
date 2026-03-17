@@ -17,7 +17,7 @@ def build():
         "pyinstaller",
         "--noconfirm",
         "--windowed",
-        "--name=CSUST-Login",
+        "--name=CSUST Login",
         f"--icon={icon_file}",
         f"--add-data={resources_src}:resources",
         "--clean",
@@ -29,7 +29,7 @@ def build():
     try:
         subprocess.run(cmd, check=True)
         print("\n构建成功")
-        print("打包结果位于 dist/CSUST-Login 目录下")
+        print("打包结果位于 dist/CSUST Login 目录下")
     except subprocess.CalledProcessError as e:
         print(f"\n构建失败: {e}")
     except FileNotFoundError:

@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.app_config = AppConfig.load_from_file(get_ui_config_path())
         # 加载配置
-        self.setWindowTitle("长理校园网自动登录")
+        self.setWindowTitle("CSUST Login")
         self._set_window_icon()
         self.setMinimumSize(520, 620)
 

@@ -29,7 +29,7 @@ class DaemonWorker(QThread):
             notification = Notify()
             notification.title = title
             notification.message = message
-            notification.application_name = "长理校园网自动登录"
+            notification.application_name = "CSUST Login"
             notification.send()
         except Exception as e:
             self.logger.error(f"发送通知失败: {e}")
