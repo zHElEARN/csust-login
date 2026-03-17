@@ -4,9 +4,20 @@
 
 ## 安装说明
 
-你可以通过 Python 的包管理器 `pip` 安装此工具。根据你的使用场景，有以下两种安装方式：
+### 直接下载
 
-### 基础安装
+如果你使用 Windows 或 macOS，且不想安装 Python 环境，可以直接下载打包好的应用程序：
+
+[前往 Releases 页面下载](https://github.com/zHElEARN/csust-login/releases/latest)
+
+- **Windows 用户**：下载 `.exe` 文件，双击即可运行
+- **macOS 用户**：下载 `.dmg` 文件，安装后即可使用
+
+### 通过 pip 安装
+
+你也可以通过 Python 的包管理器 `pip` 安装此工具。根据你的使用场景，有以下两种安装方式：
+
+#### 基础安装
 
 如果你只需要**命令行**功能（例如在 Linux 服务器、OpenWrt 路由器上实现自动静默登录），请执行：
 
@@ -14,7 +25,7 @@
 pip install csust-login
 ```
 
-### 完整安装
+#### 完整安装
 
 如果你在 Windows 或 macOS 电脑上使用，并希望拥有**图形化界面（App 界面）**和**系统通知**功能，推荐安装 UI 扩展部分：
 
