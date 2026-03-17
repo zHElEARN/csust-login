@@ -136,7 +136,7 @@ wheels = [
 
 [[package]]
 name = "csust-login"
-version = "0.1.1"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "dnspython" },
