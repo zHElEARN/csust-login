@@ -65,6 +65,7 @@ class DaemonWorker(QThread):
 
                         if self.config.NETWORK_RESET_CMD:
                             self.logger.info(f"正在执行网络重置命令: {self.config.NETWORK_RESET_CMD}")
+                            self.notify("网络重置", "执行网络重置命令，等待恢复")
                             try:
                                 subprocess.run(
                                     self.config.NETWORK_RESET_CMD,
@@ -75,7 +76,6 @@ class DaemonWorker(QThread):
                                     text=True,
                                 )
                                 self.logger.info(f"网络重置命令执行完毕，等待 {self.config.NETWORK_RESET_WAIT} 秒让网络接口恢复...")
-                                self.notify("网络重置", "已执行网络重置命令，等待恢复")
                                 self._sleep(self.config.NETWORK_RESET_WAIT)
                             except subprocess.TimeoutExpired:
                                 self.logger.error(f"网络重置命令执行超时 ({self.config.NETWORK_RESET_TIMEOUT}秒)")
@@ -83,6 +83,9 @@ class DaemonWorker(QThread):
                                 self.logger.error(f"网络重置命令执行失败，退出码: {e.returncode}, 错误信息: {e.stderr.strip()}")
                             except Exception as e:
                                 self.logger.error(f"执行自定义命令时发生未知异常: {e}")
+                        else:
+                            self.logger.info("未配置网络重置命令，等待下一次检测...")
+                            self.notify("离线状态", "未配置网络重置命令，等待下一次检测...")
 
                         self._sleep(self.config.DAEMON_RETRY_INTERVAL)
 
