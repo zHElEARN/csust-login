@@ -22,11 +22,23 @@ pip install csust-login
 pip install "csust-login[ui]"
 ```
 
-## 使用方法（命令行模式）
+## 使用方法
+
+### 图形界面模式
+
+如果你已通过 `pip install "csust-login[ui]"` 安装了 UI 扩展，可以直接在终端运行：
+
+```bash
+csust-login-ui
+```
+
+启动后会打开图形界面窗口，你可以在界面中直接配置账号、密码等参数，无需手动编辑配置文件。
+
+### 命令行模式
 
 命令行模式非常适合在服务器、路由器或不需要图形界面的环境下长时间运行。
 
-### 1. 准备配置文件
+#### 1. 准备配置文件
 
 在使用之前，你需要在程序运行的目录下创建一个名为 `config.yaml` 的文件，用于存放你的校园网账号信息。
 
@@ -58,11 +70,11 @@ NETWORK_RESET_CMD: "" # 网络重置自定义命令（例如重启网卡）
 
 </details>
 
-### 2. 运行工具
+#### 2. 运行工具
 
 安装完成后，你可以直接在终端使用以下两个命令：
 
-#### **手动单次登录**
+##### **手动单次登录**
 
 用于立即执行一次登录检查。如果已在线则跳过，如果离线则尝试登录。
 
@@ -70,7 +82,7 @@ NETWORK_RESET_CMD: "" # 网络重置自定义命令（例如重启网卡）
 csust-login
 ```
 
-#### **后台守护进程**
+##### **后台守护进程**
 
 用于自动巡检。程序会根据配置的间隔时间（默认 20 秒）自动检测网络状态，发现掉线自动重连。
 
@@ -78,12 +90,125 @@ csust-login
 csust-login-daemon
 ```
 
-## 使用方法（图形界面模式）
+> 如果你需要将守护进程配置为系统服务（开机自启），请参考下方[后台服务配置](#后台服务配置)章节。
 
-如果你已通过 `pip install "csust-login[ui]"` 安装了 UI 扩展，可以直接在终端运行：
+## 后台服务配置
+
+如果你希望让守护进程在系统启动时自动运行，可以参考以下配置方式。
+
+### OpenWrt
+
+#### 1. 安装依赖
 
 ```bash
-csust-login-ui
+opkg update
+opkg install python3 python3-pip
+pip install csust-login
 ```
 
-启动后会打开图形界面窗口，你可以在界面中直接配置账号、密码等参数，无需手动编辑配置文件。
+#### 2. 准备配置文件
+
+```bash
+mkdir -p /root/csust-login
+cat > /root/csust-login/config.yaml << EOF
+USERNAME: "你的学号"
+PASSWORD: "你的密码"
+EOF
+```
+
+#### 3. 创建 init.d 服务
+
+将以下内容写入 `/etc/init.d/csust-login`：
+
+```sh
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+PROG="/usr/bin/csust-login-daemon"
+SCRIPT_PATH="/root/csust-login"
+
+start_service() {
+    procd_open_instance
+
+    procd_set_param command /bin/sh -c "cd $SCRIPT_PATH && $PROG"
+
+    procd_set_param respawn
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+
+    procd_close_instance
+}
+```
+
+#### 4. 启用并启动服务
+
+```bash
+chmod +x /etc/init.d/csust-login
+/etc/init.d/csust-login enable
+/etc/init.d/csust-login start
+```
+
+### Ubuntu / Debian
+
+#### 1. 安装依赖
+
+使用系统 pip 或虚拟环境安装均可，以下以 Conda 为例：
+
+```bash
+# 使用 pip 直接安装
+pip install csust-login
+
+# 或通过 Conda 环境安装
+conda activate your_env
+pip install csust-login
+```
+
+#### 2. 准备配置文件
+
+```bash
+mkdir -p ~/csust-login
+cat > ~/csust-login/config.yaml << EOF
+USERNAME: "你的学号"
+PASSWORD: "你的密码"
+EOF
+```
+
+#### 3. 创建 systemd 服务
+
+将以下内容写入 `/etc/systemd/system/csust-login.service`，注意根据实际情况修改 `User`、`WorkingDirectory` 和 `ExecStart` 路径：
+
+```ini
+[Unit]
+Description=CSUST Network Login Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=your_username
+WorkingDirectory=/home/your_username/csust-login
+ExecStart=/usr/local/bin/csust-login-daemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> 如果通过 Conda 安装，`ExecStart` 需要指向 Conda 环境中的可执行文件路径，例如 `/home/your_username/miniconda3/bin/csust-login-daemon`。
+
+#### 4. 启用并启动服务
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable csust-login
+sudo systemctl start csust-login
+```
+
+查看运行状态：
+
+```bash
+sudo systemctl status csust-login
+```
